@@ -100,7 +100,7 @@ class RegressionModel(ABC):
                     sample_90_ci_hit_rate = (absolute_error < sample_90_ci_radius).mean()
                 prediction_90_ci_hit_rate = (absolute_error < prediction_90_ci_radius).mean()
 
-        gof_metrics = GoodnessOfFitMetrics(
+        return GoodnessOfFitMetrics(
             last_refit_iteration_number=self.last_refit_iteration_number,
             observation_count=len(features_df.index),
             prediction_count=len(predictions_df.index),
@@ -118,4 +118,3 @@ class RegressionModel(ABC):
             # sample_95_ci_hit_rate=None,
             # sample_99_ci_hit_rate=None,
         )
-        return gof_metrics

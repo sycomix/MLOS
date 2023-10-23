@@ -49,7 +49,7 @@ class HypergridJsonEncoder(JSONEncoder):
                 return_dict["ObjectType"] = "CompositeDimension"
                 return_dict["Name"] = o.name
                 return_dict["ChunksType"] = o.chunks_type.__name__
-                return_dict["Chunks"] = [chunk for chunk in o.enumerate_chunks()]
+                return_dict["Chunks"] = list(o.enumerate_chunks())
             return return_dict
 
         if isinstance(o, Hypergrid):
@@ -158,7 +158,4 @@ class HypergridJsonDecoder(JSONDecoder):
                 join_dimension=obj['ExternalPivotDimension']
             )
 
-        if object_type == "set":
-            return set(obj['Values'])
-
-        return obj
+        return set(obj['Values']) if object_type == "set" else obj

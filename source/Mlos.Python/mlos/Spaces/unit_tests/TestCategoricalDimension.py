@@ -51,7 +51,7 @@ class TestCategoricalDimension:
         assert warm_colors in rainbow_colors
         assert cool_colors in rainbow_colors
         assert warm_colors.union(cool_colors) in rainbow_colors
-        assert not rainbow_colors in warm_colors.union(cool_colors)
+        assert rainbow_colors not in warm_colors.union(cool_colors)
         assert 'infra-red' in rainbow_colors
         assert 'infra-red' in rainbow_colors - warm_colors - cool_colors
         assert 'red' not in rainbow_colors - warm_colors

@@ -138,11 +138,11 @@ class OptimizationProblem:
             if product:
                 renamed_context_values['contains_context'] = True
                 feature_values = feature_values.merge(renamed_context_values, how='outer', on='contains_context')
-            else:
-                if len(parameter_values) != len(context_values):
-                    raise ValueError(f"Incompatible shape of parameters and context: {parameter_values.shape} and {context_values.shape}.")
+            elif len(parameter_values) == len(context_values):
                 feature_values = pd.concat([feature_values, renamed_context_values], axis=1)
 
+            else:
+                raise ValueError(f"Incompatible shape of parameters and context: {parameter_values.shape} and {context_values.shape}.")
         else:
             feature_values['contains_context'] = False
         return feature_values

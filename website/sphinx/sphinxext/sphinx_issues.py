@@ -50,11 +50,7 @@ def user_role(name, rawtext, text, lineno, inliner, options=None,
         ref = config.issues_user_uri.format(user=target)
     else:
         ref = "https://github.com/{0}".format(target)
-    if has_explicit_title:
-        text = title
-    else:
-        text = "@{0}".format(target)
-
+    text = title if has_explicit_title else "@{0}".format(target)
     link = nodes.reference(text=text, refuri=ref, **options)
     return [link], []
 
@@ -96,27 +92,20 @@ class IssueRole(object):
     def make_node(self, name, issue_no, config, options=None):
         name_map = {"pr": "pull", "issue": "issues", "commit": "commit"}
         options = options or {}
-        repo_match = self.EXTERNAL_REPO_REGEX.match(issue_no)
-        if repo_match:  # External repo
+        if repo_match := self.EXTERNAL_REPO_REGEX.match(issue_no):
             username, repo, symbol, issue = repo_match.groups()
             if name not in name_map:
-                raise ValueError(
-                    "External repo linking not supported for :{}:".format(name)
-                )
+                raise ValueError(f"External repo linking not supported for :{name}:")
             path = name_map.get(name)
             ref = "https://github.com/{issues_github_path}/{path}/{n}".format(
-                issues_github_path="{}/{}".format(username, repo), path=path,
-                n=issue
+                issues_github_path=f"{username}/{repo}", path=path, n=issue
             )
             formatted_issue = self.format_text(issue).lstrip("#")
             text = "{username}/{repo}{symbol}{formatted_issue}".format(
                     **locals())
-            link = nodes.reference(text=text, refuri=ref, **options)
-            return link
-
+            return nodes.reference(text=text, refuri=ref, **options)
         if issue_no not in ("-", "0"):
-            uri_template = getattr(config, self.uri_config_option, None)
-            if uri_template:
+            if uri_template := getattr(config, self.uri_config_option, None):
                 ref = uri_template.format(**{self.format_kwarg: issue_no})
             elif config.issues_github_path:
                 ref = self.github_uri_template.format(
@@ -124,14 +113,12 @@ class IssueRole(object):
                 )
             else:
                 raise ValueError(
-                    "Neither {} nor issues_github_path "
-                    "is set".format(self.uri_config_option)
+                    f"Neither {self.uri_config_option} nor issues_github_path is set"
                 )
             issue_text = self.format_text(issue_no)
-            link = nodes.reference(text=issue_text, refuri=ref, **options)
+            return nodes.reference(text=issue_text, refuri=ref, **options)
         else:
-            link = None
-        return link
+            return None
 
     def __call__(
         self, name, rawtext, text, lineno, inliner, options=None, content=None

@@ -41,7 +41,10 @@ class GoodnessOfFitTensorboardWriter:
         self.optimizer = optimizer_monitor.get_optimizer_by_id(optimizer_id=optimizer_id)
 
 
-        if not self.optimizer.optimizer_config.surrogate_model_implementation == "HomogeneousRandomForestRegressionModel":
+        if (
+            self.optimizer.optimizer_config.surrogate_model_implementation
+            != "HomogeneousRandomForestRegressionModel"
+        ):
             raise NotImplementedError
 
         self.refresh_interval_s = refresh_interval_s
@@ -70,7 +73,7 @@ class GoodnessOfFitTensorboardWriter:
         }
 
         self._previous_random_forest_fit_state = None
-        self._previous_decision_trees_fit_states = [None for i in range(num_trees)]
+        self._previous_decision_trees_fit_states = [None for _ in range(num_trees)]
 
         self.column_names = GoodnessOfFitMetrics._fields
 
@@ -102,11 +105,11 @@ class GoodnessOfFitTensorboardWriter:
 
     def display_hints(self):
         print(f"Starting to write traces for optimizer: {self.optimizer.id}")
-        print(f"To view the traces launch tensorboard using this command: ")
+        print("To view the traces launch tensorboard using this command: ")
         print()
         print(f"\ttensorboard --logdir {self.top_traces_dir} --reload_interval 5")
         print()
-        print(f"To view traces specific to this optimzier, apply the following filter:")
+        print("To view traces specific to this optimzier, apply the following filter:")
         print()
         print(f"\toptimizers\\\\{self.optimizer.id}\\\\.*\\\\random_forest")
 

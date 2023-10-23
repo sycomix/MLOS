@@ -33,8 +33,15 @@ class NestedPolynomialObjective(ObjectiveFunctionBase):
         self._parameter_space = SimpleHypergrid(
             name="domain",
             dimensions=[
-                CategoricalDimension(name="polynomial_id", values=[id for id in range(self.objective_function_config.num_nested_polynomials)])
-            ]
+                CategoricalDimension(
+                    name="polynomial_id",
+                    values=list(
+                        range(
+                            self.objective_function_config.num_nested_polynomials
+                        )
+                    ),
+                )
+            ],
         )
 
         polynomial_objective_config = self.objective_function_config.polynomial_objective_config

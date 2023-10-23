@@ -60,7 +60,9 @@ class ModelTomograph:
         feature_space = optimizer.optimization_problem.parameter_space # TODO: make this feature_space
         self.ordered_dim_names = [dimension.name for dimension in feature_space.dimensions]
         self.ordered_linspaces = [dimension.linspace(num=resolution) for dimension in feature_space.dimensions]
-        self.linspaces_by_name = {name: linspace for name, linspace in zip(self.ordered_dim_names, self.ordered_linspaces)}
+        self.linspaces_by_name = dict(
+            zip(self.ordered_dim_names, self.ordered_linspaces)
+        )
         self.dimension_names_to_skip = dimension_names_to_skip if dimension_names_to_skip is not None else {'contains_parameters', 'contains_context'}
 
         self.plottable_dimensions = [dimension for dimension in feature_space.dimensions if dimension.name not in self.dimension_names_to_skip]
@@ -72,7 +74,10 @@ class ModelTomograph:
 
         # Let's construct all heatmaps that we will need.
         #
-        self._heatmaps_grid = [[None for col in range(self.num_plottable_dimensions)] for row in range(self.num_plottable_dimensions)]
+        self._heatmaps_grid = [
+            [None for _ in range(self.num_plottable_dimensions)]
+            for _ in range(self.num_plottable_dimensions)
+        ]
         for col, x_dim in enumerate(self.plottable_dimensions):
             for row, y_dim in enumerate(self.plottable_dimensions):
                 self._heatmaps_grid[row][col] = Heatmap(
@@ -160,25 +165,10 @@ class ModelTomograph:
                     # TODO: we could be plotting graphs of objective value vs x-dimension.
                     continue
 
-                if col > row:
-                    # TODO: We can just transpose the already computed heatmap from below the diagonal.
-                    #
-                    pass
-
-
-
                 # TODO: these can be computed in the constructor
                 #
                 x_dim_linspace = self.linspaces_by_name[x_dim.name]
                 y_dim_linspace = self.linspaces_by_name[y_dim.name]
-
-                # If current_x_resolution < self.x_resolution or current_y_resolution < self.y_resolution we still need to create an image with
-                # self.x_resolution * self.y_resolution pixels. But we should create the smallest query to the optimizer possible. The approach
-                # we take here is to create a query for current_x_resolution * current_y_resolution pixels, and then use Kronecker product to
-                # "scale" the heatmap up to self.x_resolution * self.y_resolution pixels.
-                #
-                current_x_resolution = len(x_dim_linspace)
-                current_y_resolution = len(y_dim_linspace)
 
                 features_df = self._create_features_dataframe(x_dim, y_dim, point)
                 predictions = self.optimizer.predict(parameter_values_pandas_frame=features_df, t=time)
@@ -186,6 +176,14 @@ class ModelTomograph:
                 predictions_df = predictions.get_dataframe()
                 if not predictions_df.empty and predictions_df[Prediction.LegalColumnNames.IS_VALID_INPUT.value].any():
                     predicted_mean = predictions_df[Prediction.LegalColumnNames.PREDICTED_VALUE.value].to_numpy()
+
+                    # If current_x_resolution < self.x_resolution or current_y_resolution < self.y_resolution we still need to create an image with
+                    # self.x_resolution * self.y_resolution pixels. But we should create the smallest query to the optimizer possible. The approach
+                    # we take here is to create a query for current_x_resolution * current_y_resolution pixels, and then use Kronecker product to
+                    # "scale" the heatmap up to self.x_resolution * self.y_resolution pixels.
+                    #
+                    current_x_resolution = len(x_dim_linspace)
+                    current_y_resolution = len(y_dim_linspace)
 
                     # To plot the values we need to reshape them back to the resolution.
                     #
@@ -222,9 +220,8 @@ class ModelTomograph:
         for dim_name in self.ordered_dim_names:
             if dim_name in (x_dim.name, y_dim.name):
                 continue
-            else:
-                linspaces.append([point[dim_name] if dim_name in point else [np.NaN]])
-                dim_names.append(dim_name)
+            linspaces.append([point[dim_name] if dim_name in point else [np.NaN]])
+            dim_names.append(dim_name)
 
         # We now create (x_resolution * y_resolution) tuples but shaped into a multi-dimensional grid.
         #
@@ -236,9 +233,8 @@ class ModelTomograph:
 
         # Finally build the dataframe.
         #
-        meshgrids_dict = {dim_name: meshgrid for dim_name, meshgrid in zip(dim_names, reshaped_meshgrids)}
-        pandas_df = pd.DataFrame(meshgrids_dict)
-        return pandas_df
+        meshgrids_dict = dict(zip(dim_names, reshaped_meshgrids))
+        return pd.DataFrame(meshgrids_dict)
 
     def _update_known_extremes(self, current_min, current_max):
         if self.known_objective_value_min is None or self.known_objective_value_min > current_min:

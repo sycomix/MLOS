@@ -40,12 +40,11 @@ class MlosOptimizationServicesProxy:
                     return json.loads(submitted_rpc.result, cls=HypergridJsonDecoder)
                 if submitted_rpc.request_status == 'in progress':
                     continue
-                if submitted_rpc.request_status == 'failed':
-                    if submitted_rpc.result is not None:
-                        exception = deserialize_from_bytes_string(rpc.result)
-                        raise exception
-                else:
+                if submitted_rpc.request_status != 'failed':
                     raise RuntimeError(f"Remote Procedure Call status: {submitted_rpc.request_status}.")
+                if submitted_rpc.result is not None:
+                    exception = deserialize_from_bytes_string(rpc.result)
+                    raise exception
             else:
                 # nothing to do... chill for a bit
                 time.sleep(spin_interval_ms / 1000.0)

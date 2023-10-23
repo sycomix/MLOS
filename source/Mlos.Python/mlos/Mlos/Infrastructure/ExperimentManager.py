@@ -56,8 +56,9 @@ class ExperimentManager:
         self.logger.info(f"Stopped experiment {mlos_experiment.id}")
 
     def _assert_no_component_conflicts(self, mlos_experiment):
-        conflicting_component_types = self._currently_targeted_component_types.intersection(mlos_experiment.smart_component_types)
-        if conflicting_component_types:
+        if conflicting_component_types := self._currently_targeted_component_types.intersection(
+            mlos_experiment.smart_component_types
+        ):
             mlos_experiment.status = MlosExperiment.Status.FAILED
             raise RuntimeError(
                 f"Unable to start experiment, since the following components are already being targeted by exising experiments: "

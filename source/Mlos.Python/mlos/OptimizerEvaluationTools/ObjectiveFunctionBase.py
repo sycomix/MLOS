@@ -41,8 +41,7 @@ class ObjectiveFunctionBase(ABC):
         #
         point_df = point.to_dataframe()
         values_df = self.evaluate_dataframe(point_df)
-        values_point = Point.from_dataframe(values_df)
-        return values_point
+        return Point.from_dataframe(values_df)
 
     @abstractmethod
     def evaluate_dataframe(self, dataframe: pd.DataFrame) -> pd.DataFrame:

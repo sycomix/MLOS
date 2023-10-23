@@ -33,6 +33,6 @@ class LruCache(XruCache):
         evicted_entry = removed_node.cache_entry
         del self._dict[removed_node.cache_entry.key]
         self._count -= 1
-        if not all(node.cache_entry.key in self._dict for node in self._list):
+        if any(node.cache_entry.key not in self._dict for node in self._list):
             assert False
         return evicted_entry

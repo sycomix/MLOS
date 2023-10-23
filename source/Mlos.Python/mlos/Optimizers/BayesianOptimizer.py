@@ -149,10 +149,10 @@ class BayesianOptimizer(OptimizerBase):
         parameter_columns_to_retain = [column for column in parameter_values_pandas_frame.columns if column in self._parameter_names_set]
         target_columns_to_retain = [column for column in target_values_pandas_frame.columns if column in self._target_names_set]
 
-        if len(parameter_columns_to_retain) == 0:
+        if not parameter_columns_to_retain:
             raise ValueError(f"None of the {parameter_values_pandas_frame.columns} is a parameter recognized by this optimizer.")
 
-        if len(target_columns_to_retain) == 0:
+        if not target_columns_to_retain:
             raise ValueError(f"None of {target_values_pandas_frame.columns} is a target recognized by this optimizer.")
 
         parameter_values_pandas_frame = parameter_values_pandas_frame[parameter_columns_to_retain]
@@ -175,7 +175,7 @@ class BayesianOptimizer(OptimizerBase):
                 raise ValueError(f"Incompatible shape of parameters and context: "
                                  f"{parameter_values_pandas_frame.shape} and {context_values_pandas_frame.shape}.")
             context_columns_to_retain = [column for column in context_values_pandas_frame.columns if column in self._context_names_set]
-            if len(context_columns_to_retain) == 0:
+            if not context_columns_to_retain:
                 raise ValueError(f"None of the {context_values_pandas_frame.columns} is a context recognized by this optimizer.")
             context_values_pandas_frame = context_values_pandas_frame[context_columns_to_retain]
             self._context_values_df = self._context_values_df.append(context_values_pandas_frame, ignore_index=True)

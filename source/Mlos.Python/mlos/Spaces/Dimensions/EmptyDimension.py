@@ -16,9 +16,7 @@ class EmptyDimension(Dimension):
         return self.to_string(include_name=False)
 
     def to_string(self, include_name=True):
-        if include_name:
-            return self.name + ": {}"
-        return "{}"
+        return self.name + ": {}" if include_name else "{}"
 
     def __repr__(self):
         return self.to_string(include_name=True)
@@ -37,8 +35,7 @@ class EmptyDimension(Dimension):
         return 0
 
     def __iter__(self):
-        for item in []:
-            yield item
+        yield from []
 
     def __eq__(self, other):
         return isinstance(other, EmptyDimension) and (self.name == other.name) and (self.type == other.type)

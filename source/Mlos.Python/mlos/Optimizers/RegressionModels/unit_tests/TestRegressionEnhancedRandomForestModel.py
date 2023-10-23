@@ -97,7 +97,7 @@ class TestRegressionEnhancedRandomForestRegressionModel:
         x_df['x1'] = np.zeros((num_points, 1))
         x_df['x2'] = np.zeros((num_points, 1))
         num_points_in_grid_per_dim = int(math.sqrt(num_points))
-        assert num_points_in_grid_per_dim * num_points_in_grid_per_dim == num_points
+        assert num_points_in_grid_per_dim**2 == num_points
         x_linspace = np.linspace(0, 5, num_points_in_grid_per_dim)
         x1, x2 = np.meshgrid(x_linspace, x_linspace)
         x_df[['x1', 'x2']] = np.array([x1, x2]).reshape(2, -1).T

@@ -86,30 +86,40 @@ def continuous_intersection_continuous(original, other):
 
 def composite_intersection_continuous(composite, continuous):
     assert composite.chunks_type is ContinuousDimension
-    overlapping_chunks = composite.pop_overlapping_chunks(continuous)
-    if not overlapping_chunks:
+    if overlapping_chunks := composite.pop_overlapping_chunks(continuous):
+        return (
+            overlapping_chunks[0].intersection_continuous_dimension(continuous)
+            if len(overlapping_chunks) == 1
+            else CompositeDimension(
+                name=composite.name,
+                chunks_type=composite.chunks_type,
+                chunks=[
+                    chunk.intersection(continuous)
+                    for chunk in overlapping_chunks
+                ],
+            )
+        )
+    else:
         return EmptyDimension(name=composite.name, type=composite.chunks_type)
-    if len(overlapping_chunks) == 1:
-        return overlapping_chunks[0].intersection_continuous_dimension(continuous)
-    return CompositeDimension(
-        name=composite.name,
-        chunks_type=composite.chunks_type,
-        chunks=[chunk.intersection(continuous) for chunk in overlapping_chunks]
-    )
 
 
 def composite_intersection_discrete(composite, discrete):
     assert composite.chunks_type is DiscreteDimension
-    overlapping_chunks = composite.pop_overlapping_chunks(discrete)
-    if not overlapping_chunks:
+    if overlapping_chunks := composite.pop_overlapping_chunks(discrete):
+        return (
+            overlapping_chunks[0].intersection_discrete_dimension(discrete)
+            if len(overlapping_chunks) == 1
+            else CompositeDimension(
+                name=composite.name,
+                chunks_type=composite.chunks_type,
+                chunks=[
+                    chunk.intersection(discrete)
+                    for chunk in overlapping_chunks
+                ],
+            )
+        )
+    else:
         return EmptyDimension(name=composite.name, type=composite.chunks_type)
-    if len(overlapping_chunks) == 1:
-        return overlapping_chunks[0].intersection_discrete_dimension(discrete)
-    return CompositeDimension(
-        name=composite.name,
-        chunks_type=composite.chunks_type,
-        chunks=[chunk.intersection(discrete) for chunk in overlapping_chunks]
-    )
 
 
 def continuous_intersection_composite(continuous, composite):
@@ -160,9 +170,10 @@ def composite_intersection_composite(original, other):
     intersection_chunks = []
     # TODO: how much does the nesting order matter here?
     for chunk in original.enumerate_chunks():
-        for overlapping_chunk in other.pop_overlapping_chunks():
-            intersection_chunks.append(chunk.intersection(overlapping_chunk))
-
+        intersection_chunks.extend(
+            chunk.intersection(overlapping_chunk)
+            for overlapping_chunk in other.pop_overlapping_chunks()
+        )
     if not intersection_chunks:
         return EmptyDimension(name=original.name, type=original.chunks_type)
 
@@ -271,7 +282,9 @@ def continuous_difference_composite(original, other):
         original = CompositeDimension(name=original.name, chunks_type=CompositeDimension, chunks=original)
         return composite_difference_composite(original, intersection)
 
-    raise RuntimeError(f"Intersection shuold be one of: EmptyDimension, ContinuousDimension, CompositeDimension. Not: type(intersection)")
+    raise RuntimeError(
+        "Intersection shuold be one of: EmptyDimension, ContinuousDimension, CompositeDimension. Not: type(intersection)"
+    )
 
 
 def discrete_difference_discrete(original, other):
@@ -312,7 +325,9 @@ def discrete_difference_composite(original, other):
         )
         return composite_difference_composite(result, intersection)
 
-    raise RuntimeError(f"Intersection shuold be one of: EmptyDimension, ContinuousDimension, CompositeDimension. Not: type(intersection)")
+    raise RuntimeError(
+        "Intersection shuold be one of: EmptyDimension, ContinuousDimension, CompositeDimension. Not: type(intersection)"
+    )
 
 def ordinal_difference_ordinal(original, other):
     return original.difference_ordinal_dimension(other)
@@ -606,11 +621,10 @@ def composite_union_composite(original, other):
         result.push(other_chunk)
         other_chunk = get_next_chunk(other_chunks_enumerator)
 
-    num_chunks = sum(1 for chunk in result.enumerate_chunks())
+    num_chunks = sum(1 for _ in result.enumerate_chunks())
     if num_chunks == 1:
-        all_chunks = [chunk for chunk in result.enumerate_chunks()]
-        only_chunk = all_chunks[0]
-        return only_chunk
+        all_chunks = list(result.enumerate_chunks())
+        return all_chunks[0]
     return result
 
 

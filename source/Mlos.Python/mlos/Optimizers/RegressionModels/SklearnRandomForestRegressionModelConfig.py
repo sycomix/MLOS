@@ -92,7 +92,7 @@ class SklearnRandomForestRegressionModelConfig(metaclass=DefaultConfigMeta):
     @classmethod
     def create_from_config_point(cls, config_point):
         assert cls.contains(config_point)
-        config_key_value_pairs = {param_name: value for param_name, value in config_point}
+        config_key_value_pairs = dict(config_point)
         return cls(**config_key_value_pairs)
 
     def __init__(
@@ -174,20 +174,12 @@ class SklearnRandomForestRegressionModelConfig(metaclass=DefaultConfigMeta):
     #  so mapping max_depth=0 to None here
     @property
     def max_depth_value(self):
-        if self.max_depth == 0:
-            return None
-        return self.max_depth
+        return None if self.max_depth == 0 else self.max_depth
 
     @property
-    # similar mapping here as for max_depth
     def max_leaf_nodes_value(self):
-        if self.max_leaf_nodes == 0 or self.max_leaf_nodes == 1:
-            return None
-        return self.max_leaf_nodes
+        return None if self.max_leaf_nodes in [0, 1] else self.max_leaf_nodes
 
     @property
-    # similar mapping here as for max_depth
     def max_sample_value(self):
-        if self.max_samples == 0:
-            return None
-        return self.max_samples
+        return None if self.max_samples == 0 else self.max_samples

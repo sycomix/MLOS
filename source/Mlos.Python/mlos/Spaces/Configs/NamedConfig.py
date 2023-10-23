@@ -9,7 +9,7 @@ class NamedConfig:
 
     """
     def __init__(self, name: str, config_point: Point, description: str):
-        assert name is not None and len(name) > 0
+        assert name is not None and name != ""
         assert config_point is not None
 
         self.name = name

@@ -71,7 +71,7 @@ class ContinuousDimension(Dimension):
         return self.to_string(include_name=True)
 
     def to_string(self, include_name=True):
-        return f"{self.name + ': ' if include_name else ''}{'[' if self.include_min else '('}{self.min:.2f}, {self.max:.2f}{']' if self.include_max else ')'}"
+        return f"{f'{self.name}: ' if include_name else ''}{'[' if self.include_min else '('}{self.min:.2f}, {self.max:.2f}{']' if self.include_max else ')'}"
 
     def __len__(self):
         if (self.max == self.min) and self.include_max and self.include_min:
@@ -109,10 +109,7 @@ class ContinuousDimension(Dimension):
         if self.min == other.max and (not self.include_min or not other.include_max):
             return False  # they are contiguous but don't overlap
 
-        if other.min == self.max and (not other.include_min or not self.include_max):
-            return False  # they are contiguous but don't overlap
-
-        return True
+        return bool(other.min != self.max or other.include_min and self.include_max)
 
     def intersection_continuous_dimension(self, other):
         assert isinstance(other, ContinuousDimension)
@@ -139,14 +136,13 @@ class ContinuousDimension(Dimension):
         else:
             intersection_include_max = self.include_max and other.include_max
 
-        intersection = ContinuousDimension(
+        return ContinuousDimension(
             name=self.name,
             min=max(self.min, other.min),
             max=min(self.max, other.max),
             include_min=intersection_include_min,
-            include_max=intersection_include_max
+            include_max=intersection_include_max,
         )
-        return intersection
 
     def union_overlapping_continuous_dimension(self, other):
         assert isinstance(other, ContinuousDimension)
@@ -221,7 +217,7 @@ class ContinuousDimension(Dimension):
         return np.linspace(self.min, self.max, num)
 
     def random(self):
-        if self.width == 0 and not (self.include_min or self.include_min):
+        if self.width == 0 and not self.include_min:
             raise ValueError("Cannot generate a random value from an empty dimension.")
         if self.width == math.inf:
             raise ValueError("Cannot generate a random value from an unbounded dimension.")

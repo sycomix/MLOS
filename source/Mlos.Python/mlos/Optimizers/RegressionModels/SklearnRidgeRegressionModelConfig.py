@@ -77,7 +77,7 @@ class SklearnRidgeRegressionModelConfig(metaclass=DefaultConfigMeta):
     @classmethod
     def create_from_config_point(cls, config_point):
         assert cls.contains(config_point)
-        config_key_value_pairs = {param_name: value for param_name, value in config_point}
+        config_key_value_pairs = dict(config_point)
         return cls(**config_key_value_pairs)
 
     def __init__(

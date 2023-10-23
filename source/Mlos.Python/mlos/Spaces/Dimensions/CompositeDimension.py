@@ -31,9 +31,7 @@ class CompositeDimension(Dimension):
 
     def to_string(self, include_name=True):
         chunks_string = " UNION ".join(chunk.to_string(include_name=False) for chunk in self.enumerate_chunks())
-        if include_name:
-            return f"{self.name}: {chunks_string}"
-        return chunks_string
+        return f"{self.name}: {chunks_string}" if include_name else chunks_string
 
     def __repr__(self):
         return self.to_string(include_name=True)
@@ -65,8 +63,7 @@ class CompositeDimension(Dimension):
         if self.is_innumerably_large:
             raise RuntimeError("This set is too large to enumerate.")
         for chunk in self.enumerate_chunks():
-            for element in chunk:
-                yield element
+            yield from chunk
 
     def __eq__(self, other):
         return self.equals(other)

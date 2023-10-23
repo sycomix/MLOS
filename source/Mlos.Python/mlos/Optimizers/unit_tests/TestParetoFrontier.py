@@ -184,9 +184,10 @@ class TestParetoFrontier:
         # Let's put together the optimization problem.
         #
         parameter_dimensions = [ContinuousDimension(name="radius", min=0, max=hypersphere_radius)]
-        for i in range(num_output_dimensions):
-            parameter_dimensions.append(ContinuousDimension(name=f"theta{i}", min=theta_min, max=theta_max))
-
+        parameter_dimensions.extend(
+            ContinuousDimension(name=f"theta{i}", min=theta_min, max=theta_max)
+            for i in range(num_output_dimensions)
+        )
         parameter_space = SimpleHypergrid(
             name='spherical_coordinates',
             dimensions=parameter_dimensions

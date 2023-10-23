@@ -108,7 +108,7 @@ class TestSmartCacheWithRemoteOptimizer:
 
 
         num_iterations = 101
-        for i in range(num_iterations):
+        for _ in range(num_iterations):
             smart_cache_workload_thread = Thread(target=self.smart_cache_workload.run, args=(0.1,))
             smart_cache_workload_thread.start()
             smart_cache_workload_thread.join()

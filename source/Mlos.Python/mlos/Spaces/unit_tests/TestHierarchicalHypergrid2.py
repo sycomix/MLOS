@@ -95,22 +95,37 @@ class TestHierarchicalHypergrid2:
         """
         assert self.cache_param_space.name == 'cache_param_space'
 
-        subgrids_joined_on_cache_implementation_name_dimension = set(joined_subgrid.subgrid for joined_subgrid in self.cache_param_space.joined_subgrids_by_pivot_dimension['cache_implementation_name'])
+        subgrids_joined_on_cache_implementation_name_dimension = {
+            joined_subgrid.subgrid
+            for joined_subgrid in self.cache_param_space.joined_subgrids_by_pivot_dimension[
+                'cache_implementation_name'
+            ]
+        }
         assert self.lru_cache_param_space in subgrids_joined_on_cache_implementation_name_dimension
         assert self.associative_cache_implementation_param_space in subgrids_joined_on_cache_implementation_name_dimension
 
-        subgrids_joined_on_hash_function_name_dimension = set(guest_subgrid.subgrid for guest_subgrid in self.associative_cache_implementation_param_space.joined_subgrids_by_pivot_dimension['hash_function_name'])
+        subgrids_joined_on_hash_function_name_dimension = {
+            guest_subgrid.subgrid
+            for guest_subgrid in self.associative_cache_implementation_param_space.joined_subgrids_by_pivot_dimension[
+                'hash_function_name'
+            ]
+        }
         assert self.mod_prime_hash_function_param_space in subgrids_joined_on_hash_function_name_dimension
         assert self.lowest_bits_param_space in subgrids_joined_on_hash_function_name_dimension
 
-        subgrids_joined_on_bucket_implementation_dimension = set(guest_subgrid.subgrid for guest_subgrid in self.associative_cache_implementation_param_space.joined_subgrids_by_pivot_dimension['bucket_implementation'])
+        subgrids_joined_on_bucket_implementation_dimension = {
+            guest_subgrid.subgrid
+            for guest_subgrid in self.associative_cache_implementation_param_space.joined_subgrids_by_pivot_dimension[
+                'bucket_implementation'
+            ]
+        }
         assert self.binary_search_tree_param_space in subgrids_joined_on_bucket_implementation_dimension
         assert self.linked_list_param_space in subgrids_joined_on_bucket_implementation_dimension
 
     def test_name_flattening(self):
         num_tests = 1000
 
-        for i in range(num_tests):
+        for _ in range(num_tests):
             random_config = self.cache_param_space.random()
 
             flat_dimensions = []
@@ -135,7 +150,6 @@ class TestHierarchicalHypergrid2:
             try:
                 if flattened_config in flat_cache_param_space:
                     ...
-                assert True
             except:
                 assert False
 

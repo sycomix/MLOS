@@ -161,6 +161,7 @@ class TestBayesianOptimizer:
         )
 
         num_restarts = 1000
+        num_guided_samples = 200
         for restart_num in range(num_restarts):
             bayesian_optimizer = BayesianOptimizer(
                 optimization_problem=optimization_problem,
@@ -168,7 +169,6 @@ class TestBayesianOptimizer:
                 logger=self.logger
             )
 
-            num_guided_samples = 200
             for i in range(num_guided_samples):
                 suggested_params = bayesian_optimizer.suggest()
                 y = objective_function.evaluate_point(suggested_params)

@@ -11,7 +11,7 @@ if len(sys.argv) != 2:
     raise Exception("usage: {scriptName} <path/to/environment.yml>".format(scriptName = sys.argv[0]))
 filePath = sys.argv[1]
 
-data = list()
+data = []
 
 with open(filePath, 'r') as stream:
     data = yaml.safe_load(stream)
@@ -19,7 +19,7 @@ with open(filePath, 'r') as stream:
 if not data or not data["dependencies"]:
     raise Exception("Failed to load yaml file at '{filePath}'".format(filePath = filePath))
 
-new_dependencies = list()
+new_dependencies = []
 for item in data["dependencies"]:
     item_type = type(item)
     if item_type == str:
@@ -33,9 +33,7 @@ for item in data["dependencies"]:
         for item_key in item:
             if item_key != "pip":
                 raise Exception("Unhandled case (non-pip dependency dict): {0}".format(item_key))
-            for other_item in item[item_key]:
-                # These are already in pip version syntax format.
-                new_dependencies.append(other_item)
+            new_dependencies.extend(iter(item[item_key]))
     else:
         raise Exception("Unhandled type: '{item_type}'".format(item_type = item_type))
 

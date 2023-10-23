@@ -218,8 +218,8 @@ class TestBayesianOptimizer:
             optimizer_config=optimizer_config
         )
 
+        num_iterations = 62
         for bayesian_optimizer in [local_optimizer, remote_optimizer]:
-            num_iterations = 62
             old_optimum = np.inf
             for i in range(num_iterations):
                 suggested_params = bayesian_optimizer.suggest()
@@ -492,12 +492,10 @@ class TestBayesianOptimizer:
     def test_optimization_with_context(self):
         # Gaussian blob in x with position dependent on context variable y.
         def f(parameters, context):
-            if isinstance(parameters, pd.DataFrame):
-                index = parameters.index
-            else:
-                index = [0]
+            index = parameters.index if isinstance(parameters, pd.DataFrame) else [0]
             return pd.DataFrame({'function_value': -np.exp(-50 * (parameters.x - 0.5 * context.y -0.5) ** 2)},
                                  index=index)
+
         input_space = SimpleHypergrid(name="input", dimensions=[ContinuousDimension(name="x", min=0, max=1)])
         output_space = SimpleHypergrid(name="objective",
                                        dimensions=[ContinuousDimension(name="function_value", min=-10, max=10)])

@@ -114,8 +114,7 @@ class HypergridAdapter(Hypergrid):
         """
         original_dataframe = point.to_dataframe()
         projected_dataframe = self._project_dataframe(original_dataframe, in_place=True)
-        projected_point = Point.from_dataframe(projected_dataframe)
-        return projected_point
+        return Point.from_dataframe(projected_dataframe)
 
     def _unproject_point(self, point: Point) -> Point:
         """ Projects a given point from target hypergrid to adaptee hypergrid.
@@ -128,8 +127,7 @@ class HypergridAdapter(Hypergrid):
         """
         original_dataframe = point.to_dataframe()
         unprojected_dataframe = self._unproject_dataframe(original_dataframe, in_place=True)
-        unprojected_point = Point.from_dataframe(unprojected_dataframe)
-        return unprojected_point
+        return Point.from_dataframe(unprojected_dataframe)
 
     @abstractmethod
     def _project_dataframe(self, df: DataFrame, in_place: bool) -> DataFrame:

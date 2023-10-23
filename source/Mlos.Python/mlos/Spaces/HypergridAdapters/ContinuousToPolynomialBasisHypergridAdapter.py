@@ -60,10 +60,11 @@ class ContinuousToPolynomialBasisHypergridAdapter(HypergridAdapter):
 
         # Record which adaptee dimensions are continuous
         self._adaptee_contains_dimensions_to_transform = False
-        self._adaptee_dimension_names_to_transform = []
-        for adaptee_dimension in self._adaptee.dimensions:
-            if isinstance(adaptee_dimension, ContinuousDimension):
-                self._adaptee_dimension_names_to_transform.append(adaptee_dimension.name)
+        self._adaptee_dimension_names_to_transform = [
+            adaptee_dimension.name
+            for adaptee_dimension in self._adaptee.dimensions
+            if isinstance(adaptee_dimension, ContinuousDimension)
+        ]
         self._num_dimensions_to_transform = len(self._adaptee_dimension_names_to_transform)
         self._adaptee_contains_dimensions_to_transform = self._num_dimensions_to_transform > 0
 
@@ -97,7 +98,10 @@ class ContinuousToPolynomialBasisHypergridAdapter(HypergridAdapter):
         # Add all adaptee dimensions to the target
         # This aligns with this adapter's goal since the linear terms will always be included in the polynomial basis functions
         for adaptee_dimension in self._adaptee.dimensions:
-            if not adaptee_dimension.name in self._adaptee_dimension_names_to_transform:
+            if (
+                adaptee_dimension.name
+                not in self._adaptee_dimension_names_to_transform
+            ):
                 self._target.add_dimension(adaptee_dimension.copy())
 
         if not self._adaptee_contains_dimensions_to_transform:
@@ -116,22 +120,21 @@ class ContinuousToPolynomialBasisHypergridAdapter(HypergridAdapter):
             if not self._polynomial_features_kwargs['include_bias'] and ith_terms_powers.sum() == 0:
                 # the constant term is skipped
                 continue
-            else:
-                # replace adaptee dim names for poly feature name {x0_, x1_, ...} representatives
-                target_dim_name = poly_feature_name
-                for j, adaptee_dim_name in enumerate(self._adaptee_dimension_names_to_transform):
-                    adaptee_dim_power = ith_terms_powers[j]
-                    if adaptee_dim_power == 0:
-                        continue
-                    if adaptee_dim_power == 1:
-                        poly_feature_adaptee_dim_name_standin = f'x{j}{self._internal_feature_name_terminal_char}'
-                        adaptee_dim_replacement_name = adaptee_dim_name
-                    else:
-                        # power > 1 cases
-                        poly_feature_adaptee_dim_name_standin = f'x{j}{self._internal_feature_name_terminal_char}^{adaptee_dim_power}'
-                        adaptee_dim_replacement_name = f'{adaptee_dim_name}^{adaptee_dim_power}'
+            # replace adaptee dim names for poly feature name {x0_, x1_, ...} representatives
+            target_dim_name = poly_feature_name
+            for j, adaptee_dim_name in enumerate(self._adaptee_dimension_names_to_transform):
+                adaptee_dim_power = ith_terms_powers[j]
+                if adaptee_dim_power == 0:
+                    continue
+                if adaptee_dim_power == 1:
+                    poly_feature_adaptee_dim_name_standin = f'x{j}{self._internal_feature_name_terminal_char}'
+                    adaptee_dim_replacement_name = adaptee_dim_name
+                else:
+                    # power > 1 cases
+                    poly_feature_adaptee_dim_name_standin = f'x{j}{self._internal_feature_name_terminal_char}^{adaptee_dim_power}'
+                    adaptee_dim_replacement_name = f'{adaptee_dim_name}^{adaptee_dim_power}'
 
-                    target_dim_name = target_dim_name.replace(poly_feature_adaptee_dim_name_standin, adaptee_dim_replacement_name)
+                target_dim_name = target_dim_name.replace(poly_feature_adaptee_dim_name_standin, adaptee_dim_replacement_name)
             # add target dimension
             # min and max are placed at -Inf and +Inf since .random() on the target hypergrid is generated on the original
             # hypergrid and passed through the adapters.
@@ -158,15 +161,23 @@ class ContinuousToPolynomialBasisHypergridAdapter(HypergridAdapter):
 
     def get_column_names_for_polynomial_features(self, degree=None):
         # column names ordered by target dimension index as this coincides with the polynomial_features.powers_ table
-        sorted_by_column_index = {k: v for k, v in sorted(self._target_polynomial_feature_map.items(), key=lambda item: item[1])}
+        sorted_by_column_index = dict(
+            sorted(
+                self._target_polynomial_feature_map.items(),
+                key=lambda item: item[1],
+            )
+        )
         if degree is None:
             return list(sorted_by_column_index.keys())
 
-        dim_names = []
-        for ith_terms_powers, poly_feature_name  in zip(self._polynomial_features_powers, self._get_polynomial_feature_names()):
-            if ith_terms_powers.sum() == degree:
-                dim_names.append(poly_feature_name)
-        return dim_names
+        return [
+            poly_feature_name
+            for ith_terms_powers, poly_feature_name in zip(
+                self._polynomial_features_powers,
+                self._get_polynomial_feature_names(),
+            )
+            if ith_terms_powers.sum() == degree
+        ]
 
     def get_polynomial_feature_powers_table(self):
         return self._polynomial_features_powers
@@ -175,12 +186,10 @@ class ContinuousToPolynomialBasisHypergridAdapter(HypergridAdapter):
         return self._polynomial_features_powers.shape[0]
 
     def _get_polynomial_feature_names(self):
-        # The default polynomial feature feature names returned from .get_feature_names() look like: ['1', 'x0', 'x1', 'x0^2', 'x0 x1', 'x1^2']
-        # They are altered below by adding a terminal char so string substitutions don't confuse
-        # a derived feature named 'x1 x12' with another potentially derived feature named 'x10 x124'
-        replaceable_feature_names = []
-        for i in range(len(self._adaptee_dimension_names_to_transform)):
-            replaceable_feature_names.append(f'x{i}{self._internal_feature_name_terminal_char}')
+        replaceable_feature_names = [
+            f'x{i}{self._internal_feature_name_terminal_char}'
+            for i in range(len(self._adaptee_dimension_names_to_transform))
+        ]
         return self._polynomial_features.get_feature_names(replaceable_feature_names)
 
     def _project_dataframe(self, df: DataFrame, in_place=True) -> DataFrame:

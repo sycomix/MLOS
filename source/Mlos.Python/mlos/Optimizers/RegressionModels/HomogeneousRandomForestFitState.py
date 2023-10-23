@@ -34,5 +34,4 @@ class HomogeneousRandomForestFitState(RegressionModelFitState):
             tree_dataframe.rename(columns=name_mapping, inplace=True)
             all_dataframes.append(tree_dataframe)
 
-        combined = pd.concat(all_dataframes, axis=1)
-        return combined
+        return pd.concat(all_dataframes, axis=1)

@@ -126,7 +126,7 @@ class OptimizerBase(ABC):
         return config_at_optimum, optimum_value
 
     @trace()
-    def _prediction_based_optimum(self, parameters_df: pd.DataFrame, optimum_definition: OptimumDefinition, alpha: float)-> Tuple[Point, Point]:
+    def _prediction_based_optimum(self, parameters_df: pd.DataFrame, optimum_definition: OptimumDefinition, alpha: float) -> Tuple[Point, Point]:
         objective = self.optimization_problem.objectives[0]
         predictions = self.predict(parameter_values_pandas_frame=parameters_df)
         predictions_df = predictions.get_dataframe()
@@ -139,9 +139,6 @@ class OptimizerBase(ABC):
         assert parameters_df.index.intersection(predictions_df.index).equals(predictions_df.index)
 
         predicted_value_column_name = Prediction.LegalColumnNames.PREDICTED_VALUE.value
-        dof_column_name = Prediction.LegalColumnNames.PREDICTED_VALUE_DEGREES_OF_FREEDOM.value
-        variance_column_name = Prediction.LegalColumnNames.PREDICTED_VALUE_VARIANCE.value
-
         if optimum_definition == OptimumDefinition.PREDICTED_VALUE_FOR_OBSERVED_CONFIG:
             if objective.minimize:
                 index_of_best = predictions_df[predicted_value_column_name].idxmin()
@@ -156,6 +153,7 @@ class OptimizerBase(ABC):
             #
             predictions_df = predictions_df.copy(deep=True)
 
+            dof_column_name = Prediction.LegalColumnNames.PREDICTED_VALUE_DEGREES_OF_FREEDOM.value
             # Drop nulls and zeroes.
             #
             predictions_df = predictions_df[predictions_df[dof_column_name].notna() & (predictions_df[dof_column_name] != 0)]
@@ -164,6 +162,8 @@ class OptimizerBase(ABC):
                 raise ValueError("Insufficient data to compute confidence-bound based optimum.")
 
             t_values = scipy.stats.t.ppf(1 - alpha / 2, predictions_df[dof_column_name])
+            variance_column_name = Prediction.LegalColumnNames.PREDICTED_VALUE_VARIANCE.value
+
             prediction_interval_radii = t_values * np.sqrt(predictions_df[variance_column_name])
 
             if optimum_definition == OptimumDefinition.UPPER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG:

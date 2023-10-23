@@ -23,7 +23,7 @@ class TestStack:
             stack.pop()
             assert False
         except:
-            assert True
+            pass
 
 
 class TestSortedBinaryTree:
@@ -69,7 +69,7 @@ class TestSortedBinaryTree:
         assert sorted_binary_tree.pop(1) == 'one'
         assert not sorted_binary_tree.contains(1)
 
-        keys = [i for i in range(10)]
+        keys = list(range(10))
         keys = sorted(keys, key=lambda x: random.random())
 
         for key in keys:
@@ -119,7 +119,7 @@ class TestSortedBinaryTree:
         inserted = set()
         removed = set()
 
-        for i in range(num_iterations):
+        for _ in range(num_iterations):
             # Each case will need one of the below
             existing_key = random.choice(list(inserted)) if inserted else None
             new_key = random.randint(0, key_range)
@@ -141,8 +141,7 @@ class TestSortedBinaryTree:
                     sorted_binary_tree.add(existing_key)
                     assert False
                 except:
-                    assert True
-
+                    pass
             elif OPERATION_TYPE == LOOKUP_EXISTING:
                 assert sorted_binary_tree.contains(existing_key)
                 assert sorted_binary_tree.get(existing_key) == str(existing_key)
@@ -154,8 +153,7 @@ class TestSortedBinaryTree:
                     sorted_binary_tree.get(new_key)
                     assert False
                 except:
-                    assert True
-
+                    pass
             elif OPERATION_TYPE == POP_EXISTING:
                 assert sorted_binary_tree.contains(existing_key)
                 assert sorted_binary_tree.pop(existing_key) == str(existing_key)
@@ -169,8 +167,7 @@ class TestSortedBinaryTree:
                     sorted_binary_tree.get(new_key)
                     assert False
                 except:
-                    assert True
-
+                    pass
             else:
                 assert False
 
@@ -207,7 +204,6 @@ class TestSortedBinaryTree:
         for key in range(5000, 10000):
             sorted_binary_tree.get(key)
             sorted_binary_tree.pop(key)
-        assert True
 
     def test_binary_tree_enumeration(self):
         sorted_binary_tree = SortedBinaryTree()

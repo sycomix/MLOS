@@ -173,7 +173,7 @@ class TestCategoricalToDiscreteHypergridAdapter:
             original_point = self.simple_hypergrid.random()
             projected_point = adapter.project_point(original_point)
             for dim_name, value in projected_point:
-                assert not "." in dim_name
+                assert "." not in dim_name
             assert original_point == projected_point # No projection for SimpleHypergrid-to-SimpleHypergrid adapters.
             unprojected_point = adapter.unproject_point(projected_point)
             assert unprojected_point in self.simple_hypergrid
@@ -187,12 +187,12 @@ class TestCategoricalToDiscreteHypergridAdapter:
             projected_point = adapter.project_point(original_point)
 
             if original_point.categorical_mixed_types is True:
-                assert not projected_point == original_point
+                assert projected_point != original_point
             else:
                 assert projected_point == original_point
 
             for dim_name, value in projected_point:
-                assert not "." in dim_name
+                assert "." not in dim_name
             unprojected_point = adapter.unproject_point(projected_point)
             assert unprojected_point in self.hierarchical_hypergrid
             assert unprojected_point == original_point
@@ -206,7 +206,7 @@ class TestCategoricalToDiscreteHypergridAdapter:
         assert not original_df.equals(projected_df)
         columns = projected_df.columns.values.tolist()
         for column in columns:
-            assert not "." in column
+            assert "." not in column
 
         unprojected_df = adapter.unproject_dataframe(df=projected_df, in_place=False)
         assert id(projected_df) != id(unprojected_df)
@@ -222,15 +222,15 @@ class TestCategoricalToDiscreteHypergridAdapter:
         first_adapter = HierarchicalToFlatHypergridAdapter(adaptee=self.hierarchical_hypergrid)
         adapter = CategoricalToDiscreteHypergridAdapter(adaptee=first_adapter)
         assert not any(isinstance(dimension, CategoricalDimension) for dimension in adapter.dimensions)
-        assert not any("." in dimension.name for dimension in adapter.dimensions)
+        assert all("." not in dimension.name for dimension in adapter.dimensions)
 
         for _ in range(1000):
             original_point = self.hierarchical_hypergrid.random()
             projected_point = adapter.project_point(original_point)
 
             assert all(isinstance(dim_value, Number) for dim_name, dim_value in projected_point)
-            assert not any("." in dim_name for dim_name, value in projected_point)
-            assert not projected_point == original_point
+            assert all("." not in dim_name for dim_name, value in projected_point)
+            assert projected_point != original_point
 
             unprojected_point = adapter.unproject_point(projected_point)
             assert unprojected_point in self.hierarchical_hypergrid
@@ -243,7 +243,7 @@ class TestCategoricalToDiscreteHypergridAdapter:
             )
         )
         assert not any(isinstance(dimension, CategoricalDimension) for dimension in adapter.dimensions)
-        assert not any("." in dimension.name for dimension in adapter.dimensions)
+        assert all("." not in dimension.name for dimension in adapter.dimensions)
 
         original_df = self.hierarchical_hypergrid.random_dataframe(num_samples=10000)
         projected_df = adapter.project_dataframe(df=original_df, in_place=False)

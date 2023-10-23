@@ -146,11 +146,7 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
             flat_dimension = dimension.copy()
             flat_dimension.name = Dimension.flatten_dimension_name(flat_dimension.name)
             flat_dimensions.append(flat_dimension)
-        flat_hypergrid = SimpleHypergrid(
-            name=subspace_name,
-            dimensions=flat_dimensions
-        )
-        return flat_hypergrid
+        return SimpleHypergrid(name=subspace_name, dimensions=flat_dimensions)
 
     @trace()
     def fit(self, feature_values_pandas_frame, target_values_pandas_frame, iteration_number):
@@ -246,7 +242,7 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
 
         for i in range(num_prediction_dataframes):
             new_names = [f"{old_name}_{i}" for old_name in old_names]
-            old_names_to_new_names_mapping = {old_name: new_name for old_name, new_name in zip(old_names, new_names)}
+            old_names_to_new_names_mapping = dict(zip(old_names, new_names))
             prediction_dataframes_per_tree[i].drop(columns=[is_valid_input_col], inplace=True)
             # We can safely overwrite them in place since we are their sole owner by now.
             prediction_dataframes_per_tree[i].rename(columns=old_names_to_new_names_mapping, inplace=True)
@@ -260,11 +256,11 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
         #   paper: https://arxiv.org/pdf/1211.0906.pdf
         #   section: section: 4.3.2 for details
         all_predictions_df[predicted_value_var_col] = all_predictions_df[mean_var_col_names_per_tree].mean(axis=1) \
-                                             + (all_predictions_df[predicted_value_col_names_per_tree] ** 2).mean(axis=1) \
-                                             - all_predictions_df[predicted_value_col] ** 2 + 0.0000001 # A little numerical instability correction
+                                                 + (all_predictions_df[predicted_value_col_names_per_tree] ** 2).mean(axis=1) \
+                                                 - all_predictions_df[predicted_value_col] ** 2 + 0.0000001 # A little numerical instability correction
         all_predictions_df[sample_var_col] = all_predictions_df[sample_var_col_names_per_tree].mean(axis=1) \
-                                             + (all_predictions_df[predicted_value_col_names_per_tree] ** 2).mean(axis=1) \
-                                             - all_predictions_df[predicted_value_col] ** 2 + 0.0000001 # A little numerical instability correction
+                                                 + (all_predictions_df[predicted_value_col_names_per_tree] ** 2).mean(axis=1) \
+                                                 - all_predictions_df[predicted_value_col] ** 2 + 0.0000001 # A little numerical instability correction
         all_predictions_df[sample_size_col] = all_predictions_df[predicted_value_col_names_per_tree].count(axis=1)
         all_predictions_df[dof_col] = all_predictions_df[sample_size_col_names_per_tree].sum(axis=1) - all_predictions_df[sample_size_col]
         all_predictions_df[is_valid_input_col] = True

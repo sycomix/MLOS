@@ -31,7 +31,6 @@ class MruCache(XruCache):
 
     def evict(self):
         removed_node = self._list.remove_at_head()
-        evicted_entry = removed_node.cache_entry
         del self._dict[removed_node.cache_entry.key]
         self._count -= 1
-        return evicted_entry
+        return removed_node.cache_entry

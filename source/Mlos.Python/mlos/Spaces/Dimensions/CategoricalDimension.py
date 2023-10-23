@@ -26,18 +26,13 @@ class CategoricalDimension(Dimension):
 
     def to_string(self, include_name=True):
         values_str = f"{{{', '.join(str(value) for value in self.values[:min(3, len(self))])}{', ...' if len(self) > 3 else ''}}}"
-        if include_name:
-            return f"{self.name}: {values_str}"
-        return values_str
+        return f"{self.name}: {values_str}" if include_name else values_str
 
     def __repr__(self):
         return self.to_string(include_name=True)
 
     def copy(self):
-        return CategoricalDimension(
-            name=self.name,
-            values=[value for value in self.values]
-        )
+        return CategoricalDimension(name=self.name, values=list(self.values))
 
     def __eq__(self, other):
         return isinstance(other, CategoricalDimension) and self.name == other.name and self.values_set == other.values_set
@@ -46,8 +41,7 @@ class CategoricalDimension(Dimension):
         return len(self.values)
 
     def __iter__(self):
-        for value in self.values:
-            yield value
+        yield from self.values
 
     def __getitem__(self, key):
         return self.values[key]
@@ -95,10 +89,8 @@ class CategoricalDimension(Dimension):
             return self.copy()
 
         # otherwise we create a new CategoricalDimension
-        values = [value for value in self.values]
-        for value in other:
-            if value not in self.values_set:
-                values.append(value)
+        values = list(self.values)
+        values.extend(value for value in other if value not in self.values_set)
         return CategoricalDimension(name=self.name, values=values)
 
     def difference_categorical_dimension(self, other):
@@ -106,7 +98,7 @@ class CategoricalDimension(Dimension):
         return CategoricalDimension(name=self.name, values=[value for value in self if value not in other])
 
     def linspace(self, num=None):
-        return [value for value in self.values]
+        return list(self.values)
 
     def random(self):
         return self._random_state.choice(self.values)

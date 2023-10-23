@@ -22,25 +22,21 @@ class OrdinalDimension(CategoricalDimension):
     def copy(self):
         return OrdinalDimension(
             name=self.name,
-            ordered_values=[value for value in self.values],
-            ascending=self.ascending
+            ordered_values=list(self.values),
+            ascending=self.ascending,
         )
 
     @property
     def min(self):
         if not self.values:
             return None
-        if self.ascending:
-            return self.values[0]
-        return self.values[-1]
+        return self.values[0] if self.ascending else self.values[-1]
 
     @property
     def max(self):
         if not self.values:
             return None
-        if self.ascending:
-            return self.values[-1]
-        return self.values[0]
+        return self.values[-1] if self.ascending else self.values[0]
 
     def _am_i_numeric(self):
         "Determines if all values are numeric."
@@ -87,10 +83,8 @@ class OrdinalDimension(CategoricalDimension):
             return self.copy()
 
         # otherwise we create a new OrdinalDimension
-        values = [value for value in self.values]
-        for value in other:
-            if value not in self.values_set:
-                values.append(value)
+        values = list(self.values)
+        values.extend(value for value in other if value not in self.values_set)
         values = sorted(values, reverse=not self.ascending)
 
         return OrdinalDimension(name=self.name, ordered_values=values, ascending=self.ascending)

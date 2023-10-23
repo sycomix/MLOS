@@ -17,8 +17,7 @@ class ModelsDatabase:
 
     @classmethod
     def connect_to_endpoint(cls, credentials):
-        models_database = ModelsDatabase(connection_string=credentials)
-        return models_database
+        return ModelsDatabase(connection_string=credentials)
 
     def __init__(self, connection_string, logger=None):
         self.logger = logger if logger is not None else create_logger("ModelsDatabase")
@@ -208,7 +207,7 @@ class ModelsDatabase:
                 WHERE 
                     request_status = 'submitted'
                     AND
-                    remote_procedure_name in ({",".join("'" + name + "'" for name in allowed_rpc_names)})
+                    remote_procedure_name in ({",".join(f"'{name}'" for name in allowed_rpc_names)})
                 ORDER BY
                     request_submission_time asc
             )
@@ -250,7 +249,7 @@ class ModelsDatabase:
             UPDATE RemoteProcedureCalls
             SET 
                 request_status = '{rpc_object.request_status}',
-                result = {'NULL' if rpc_object.result is None else "'" + rpc_object.result + "'"}
+                result = {'NULL' if rpc_object.result is None else f"'{rpc_object.result}'"}
             WHERE
                 request_id = '{rpc_object.request_id}'
                 AND
@@ -341,8 +340,8 @@ class ModelsDatabase:
                 '{optimizer.optimizer_type}',
                 '{optimizer.optimizer_config}',
                 '{optimizer.optimizer_hypergrid}',
-                {"'" + optimizer.optimizer_focused_hypergrid + "'" if optimizer.optimizer_focused_hypergrid is not None else 'NULL'},
-                {"'" + optimizer.optimization_problem + "'" if optimizer.optimization_problem is not None else 'NULL'}
+                {f"'{optimizer.optimizer_focused_hypergrid}'" if optimizer.optimizer_focused_hypergrid is not None else 'NULL'},
+                {f"'{optimizer.optimization_problem}'" if optimizer.optimization_problem is not None else 'NULL'}
             )
         '''
         all_rows = self._insert(
@@ -525,8 +524,9 @@ class ModelsDatabase:
             ORDER BY SerializedModels.model_version DESC
         '''
 
-        all_rows = self._select(query_text=sql, error_message="Failed to get optimizer state.")
-        if all_rows:
+        if all_rows := self._select(
+            query_text=sql, error_message="Failed to get optimizer state."
+        ):
             only_row = all_rows[0]
             optimizer.optimizer_config = only_row[0]
             optimizer.optimizer_hypergrid = only_row[1]
@@ -552,8 +552,9 @@ class ModelsDatabase:
             WHERE
                 optimizer_id = '{optimizer.optimizer_id}'
         '''
-        all_rows = self._select(query_text=sql, error_message="Failed to get optimizer state.")
-        if all_rows:
+        if all_rows := self._select(
+            query_text=sql, error_message="Failed to get optimizer state."
+        ):
             only_row = all_rows[0]
             optimizer.optimizer_config = only_row[0]
             optimizer.optimizer_hypergrid = only_row[1]

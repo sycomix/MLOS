@@ -30,12 +30,12 @@ class OptimizerMonitor:
         request = Empty()
         optimizer_list = self._optimizer_service_stub.ListExistingOptimizers(request)
 
-        optimizer_proxies = [
-            self._optimizer_factory.connect_to_existing_remote_optimizer(optimizer_info)
-            for optimizer_info
-            in optimizer_list.Optimizers
+        return [
+            self._optimizer_factory.connect_to_existing_remote_optimizer(
+                optimizer_info
+            )
+            for optimizer_info in optimizer_list.Optimizers
         ]
-        return optimizer_proxies
 
     def get_optimizer_by_id(self, optimizer_id):
         """Returns a proxy to an optimizer with a specified Id.
@@ -45,5 +45,6 @@ class OptimizerMonitor:
         """
         optimizer_handle = OptimizerHandle(Id=optimizer_id)
         optimizer_info = self._optimizer_service_stub.GetOptimizerInfo(optimizer_handle)
-        optimizer_proxy = self._optimizer_factory.connect_to_existing_remote_optimizer(optimizer_info)
-        return optimizer_proxy
+        return self._optimizer_factory.connect_to_existing_remote_optimizer(
+            optimizer_info
+        )

@@ -95,10 +95,13 @@ class PolynomialObjective:
             # generate random polynomial if coefficients not specified
             np.random.seed(self.seed)
 
-            self.coef_ = [r for r in np.random.uniform(self.coefficient_domain_min,
-                                                       self.coefficient_domain_max,
-                                                       self.num_expected_coefficients_)
-                          ]  # temporarily a list to be convert to np.array
+            self.coef_ = list(
+                np.random.uniform(
+                    self.coefficient_domain_min,
+                    self.coefficient_domain_max,
+                    self.num_expected_coefficients_,
+                )
+            )
 
             if self.percent_coefficients_zeroed > 0.0:
                 # reset a random subset of coefficients to 0
@@ -124,7 +127,7 @@ class PolynomialObjective:
             # test if degree specified is consistent with number of coefficients passed
             num_specified_coefficients = len(self.coefficients)
             assert num_specified_coefficients == self.num_expected_coefficients_, \
-                'Failed to find sufficient number of coefficients for specified polynomial degree'
+                    'Failed to find sufficient number of coefficients for specified polynomial degree'
 
             self.coef_ = np.array(self.coefficients)
 

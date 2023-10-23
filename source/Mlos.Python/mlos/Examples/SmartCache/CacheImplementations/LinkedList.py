@@ -14,7 +14,7 @@ class LinkedList:
         return f"[{', '.join(str(node.cache_entry.key) for node in self)}]"
 
     def __len__(self):
-        return len([element for element in self])
+        return len(list(self))
 
     def enumerate(self, reverse=False):
         current_node = self.head if not reverse else self.tail
@@ -62,15 +62,11 @@ class LinkedList:
 
     def remove_at_tail(self):
         node = self.tail
-        if node is None:
-            return node
-        return self.remove_node(node)
+        return node if node is None else self.remove_node(node)
 
     def remove_at_head(self):
         node = self.head
-        if node is None:
-            return node
-        return self.remove_node(node)
+        return node if node is None else self.remove_node(node)
 
 
 class LinkedListNode:

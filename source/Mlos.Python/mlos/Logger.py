@@ -71,7 +71,7 @@ def create_logger(logger_name, create_console_handler=True, create_file_handler=
         logger.addHandler(console_handler)
 
     if create_file_handler:
-        file_handler = logging.FileHandler(logger_name + ".log")
+        file_handler = logging.FileHandler(f"{logger_name}.log")
         file_handler.setLevel(logging_level)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
@@ -84,7 +84,4 @@ def create_logger(logger_name, create_console_handler=True, create_file_handler=
         logger.addHandler(buffering_handler)
 
     # TODO: Fix this, as sometimes we are returning a tuple + logger and sometimes just the logger.
-    if create_buffering_handler:
-        return logger, buffering_handler
-
-    return logger
+    return (logger, buffering_handler) if create_buffering_handler else logger

@@ -125,12 +125,12 @@ class OptimizerEvaluator:
 
         regression_model_fit_state = RegressionModelFitState()
 
-        optima_over_time = {}
-        optima_over_time[OptimumDefinition.BEST_OBSERVATION.value] = OptimumOverTime(
-            optimization_problem=self.optimizer.optimization_problem,
-            optimum_definition=OptimumDefinition.BEST_OBSERVATION
-        )
-
+        optima_over_time = {
+            OptimumDefinition.BEST_OBSERVATION.value: OptimumOverTime(
+                optimization_problem=self.optimizer.optimization_problem,
+                optimum_definition=OptimumDefinition.BEST_OBSERVATION,
+            )
+        }
         optima_over_time[OptimumDefinition.PREDICTED_VALUE_FOR_OBSERVED_CONFIG.value] = OptimumOverTime(
             optimization_problem=self.optimizer.optimization_problem,
             optimum_definition=OptimumDefinition.PREDICTED_VALUE_FOR_OBSERVED_CONFIG

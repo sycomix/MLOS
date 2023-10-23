@@ -19,7 +19,7 @@ class Point:
             self[dimension_name] = value
 
     def copy(self):
-        return Point(**{key: value for key, value in self})
+        return Point(**dict(self))
 
     def flat_copy(self):
         """ Creates a copy of the point but all dimension names are flattened.

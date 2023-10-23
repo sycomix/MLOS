@@ -84,20 +84,14 @@ class Node:
     def is_left_child(self):
         if self.parent is None:
             return False
-        if self.parent.left is None:
-            return False
-        if self.parent.left.key != self.key:
-            return False
-        return True
+        return False if self.parent.left is None else self.parent.left.key == self.key
 
     def is_right_child(self):
         if self.parent is None:
             return False
         if self.parent.right is None:
             return False
-        if self.parent.right.key != self.key:
-            return False
-        return True
+        return self.parent.right.key == self.key
 
     def swap_parent(self, new_parent):
         if self.is_left_child():

@@ -65,5 +65,4 @@ class SmartComponentManager:
         self._allowed_component_type_names[component_type.__name__] = component_type
 
     def enumerate_allowed_component_types(self):
-        for component_type in self._allowed_component_types:
-            yield component_type
+        yield from self._allowed_component_types

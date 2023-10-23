@@ -34,7 +34,7 @@ class BayesianOptimizerFactory:
 
     def create_local_optimizer(self, optimization_problem: OptimizationProblem, optimizer_config: Point = None) -> BayesianOptimizer:
         if optimizer_config is None:
-            self.logger.info(f"Optimizer config not specified. Using default.")
+            self.logger.info("Optimizer config not specified. Using default.")
             optimizer_config = bayesian_optimizer_config_store.default
 
         self.logger.debug(f"Creating a bayesian optimizer with config: {optimizer_config.to_json(indent=2)}.")

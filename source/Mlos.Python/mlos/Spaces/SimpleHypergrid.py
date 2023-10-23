@@ -113,10 +113,10 @@ class SimpleHypergrid(Hypergrid):
         indent_str = ' ' * indent
         dimensions_indent_str = ' ' * (indent+2)
         root_grid_header = f"{indent_str}Name: {self.name}\n" \
-                           f"{indent_str}Dimensions:\n"
-        root_dimension_strings = []
-        for dimension in self._dimensions:
-            root_dimension_strings.append(f"{dimensions_indent_str}{dimension}")
+                               f"{indent_str}Dimensions:\n"
+        root_dimension_strings = [
+            f"{dimensions_indent_str}{dimension}" for dimension in self._dimensions
+        ]
         root_grid_string = root_grid_header + "\n".join(root_dimension_strings)
 
         if self.is_hierarchical():
@@ -124,8 +124,10 @@ class SimpleHypergrid(Hypergrid):
 
         subgrid_strings = []
         for _, joined_subgrids in self.joined_subgrids_by_pivot_dimension.items():
-            for joined_subgrid in joined_subgrids:
-                subgrid_strings.append(joined_subgrid.to_string(indent=indent))
+            subgrid_strings.extend(
+                joined_subgrid.to_string(indent=indent)
+                for joined_subgrid in joined_subgrids
+            )
         subgrid_string = "\n".join(subgrid_strings)
         return root_grid_string + subgrid_string
 
@@ -254,13 +256,11 @@ class SimpleHypergrid(Hypergrid):
 
     @property
     def dimensions(self):
-        dimensions = []
-        for dimension in self._dimensions:
-            dimensions.append(dimension)
+        dimensions = list(self._dimensions)
         for subgrid_name, subgrid in self.subgrids_by_name.items():
             for dimension in subgrid.dimensions:
                 returned_dimension = dimension.copy()
-                returned_dimension.name = subgrid_name + "." + returned_dimension.name
+                returned_dimension.name = f"{subgrid_name}.{returned_dimension.name}"
                 dimensions.append(returned_dimension)
         return dimensions
 

@@ -55,7 +55,9 @@ class DecisionTreeRegressionModel(RegressionModel):
 
         self.input_dimension_names = [dimension.name for dimension in self._input_space_adapter.dimensions]
         self.target_dimension_names = [dimension.name for dimension in self.output_space.dimensions]
-        self.logger.debug(f"Input dimensions: {str(self.input_dimension_names)}; Target dimensions: {str(self.target_dimension_names)}.")
+        self.logger.debug(
+            f"Input dimensions: {self.input_dimension_names}; Target dimensions: {self.target_dimension_names}."
+        )
 
         assert len(self.target_dimension_names) == 1, "For now (and perhaps forever) we only support single target per tree."
 

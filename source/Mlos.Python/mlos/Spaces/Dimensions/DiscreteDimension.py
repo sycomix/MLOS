@@ -34,7 +34,7 @@ class DiscreteDimension(Dimension):
 
     def is_contiguous_with(self, other):
         assert isinstance(other, DiscreteDimension)
-        if not self.stride == other.stride:
+        if self.stride != other.stride:
             return False
 
         return self.min == (other.max + other.stride) or other.min == (self.max + self.stride)
@@ -58,12 +58,12 @@ class DiscreteDimension(Dimension):
 
     def to_string(self, include_name=True):
         if len(self) == 1:
-            return f"{self.name + ': ' if include_name else ''}{{{self.min}}}"
+            return f"{f'{self.name}: ' if include_name else ''}{{{self.min}}}"
         if len(self) == 2:
-            return f"{self.name + ': ' if include_name else ''}{{{self.min}, {self.max}}}"
+            return f"{f'{self.name}: ' if include_name else ''}{{{self.min}, {self.max}}}"
         if len(self) == 3:
-            return f"{self.name + ': ' if include_name else ''}{{{self.min}, {self.min + self.stride}, {self.max}}}"
-        return f"{self.name + ': ' if include_name else ''}{{{self.min}, {self.min + self.stride}, ... , {self.max}}}"
+            return f"{f'{self.name}: ' if include_name else ''}{{{self.min}, {self.min + self.stride}, {self.max}}}"
+        return f"{f'{self.name}: ' if include_name else ''}{{{self.min}, {self.min + self.stride}, ... , {self.max}}}"
 
     def __len__(self):
         return self.max - self.min + 1
@@ -91,7 +91,10 @@ class DiscreteDimension(Dimension):
 
             if isinstance(other_dimension, DiscreteDimension):
                 # we need to make sure that it's in bounds, on stride, and strides harmonize
-                if not(other_dimension.min in self and other_dimension.max in self):
+                if (
+                    other_dimension.min not in self
+                    or other_dimension.max not in self
+                ):
                     # it's not in bounds
                     return False
                 # OK: it's within bounds and on stride, but do strides harmonize?

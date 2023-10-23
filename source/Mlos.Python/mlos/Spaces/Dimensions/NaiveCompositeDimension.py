@@ -91,8 +91,6 @@ class NaiveCompositeDimension(Dimension):
     def __contains__(self, item):
         if isinstance(item, Number):
             return self._contains_number(number=item)
-        if isinstance(item, Dimension):
-            raise NotImplementedError
         raise NotImplementedError
 
     def __iter__(self):
@@ -110,7 +108,10 @@ class NaiveCompositeDimension(Dimension):
         already_enumerated_dimensions = []
         for unioned_dimension in unioned_dimensions:
             for value in unioned_dimension:
-                if not any(value in dimension for dimension in already_enumerated_dimensions):
+                if all(
+                    value not in dimension
+                    for dimension in already_enumerated_dimensions
+                ):
                     if value in self:
                         yield value
             already_enumerated_dimensions.append(unioned_dimension)

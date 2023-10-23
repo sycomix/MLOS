@@ -68,17 +68,18 @@ class TestContinuousToPolynomialBasisHypergridAdapter:
             self._test_dataframe_projection(adaptee, adaptee_kwargs, num_random_points=10)
 
     def _test_dataframe_projection(self, adaptee, adapter_kwargs, num_random_points):
-        num_adaptee_continuous_dims = 0
-        for adaptee_dim in adaptee.dimensions:
-            if isinstance(adaptee_dim, ContinuousDimension):
-                num_adaptee_continuous_dims += 1
-
+        num_adaptee_continuous_dims = sum(
+            1
+            for adaptee_dim in adaptee.dimensions
+            if isinstance(adaptee_dim, ContinuousDimension)
+        )
         # count the number of polynomial terms expected excluding the constant term
         if adapter_kwargs['interaction_only']:
-            num_target_continuous_dims_expected = 0
-            for i in range(adapter_kwargs['degree']):
-                if i + 1 <= num_adaptee_continuous_dims:
-                    num_target_continuous_dims_expected += self.n_choose_k(num_adaptee_continuous_dims, i+1)
+            num_target_continuous_dims_expected = sum(
+                self.n_choose_k(num_adaptee_continuous_dims, i + 1)
+                for i in range(adapter_kwargs['degree'])
+                if i + 1 <= num_adaptee_continuous_dims
+            )
         else:
             num_target_continuous_dims_expected = self.n_choose_k(adapter_kwargs['degree'] + num_adaptee_continuous_dims, num_adaptee_continuous_dims) - 1
         if adapter_kwargs['include_bias']:
@@ -93,7 +94,10 @@ class TestContinuousToPolynomialBasisHypergridAdapter:
         # test in_place=False
         projected_df = adapter.project_dataframe(df=original_df, in_place=False)
         assert id(original_df) != id(projected_df)
-        assert all([target_dim_name in projected_df.columns.values for target_dim_name in adapter.get_column_names_for_polynomial_features()])
+        assert all(
+            target_dim_name in projected_df.columns.values
+            for target_dim_name in adapter.get_column_names_for_polynomial_features()
+        )
 
         # test values are as expected
         self._test_polynomial_feature_values_are_as_expected(adapter, projected_df)
@@ -108,8 +112,10 @@ class TestContinuousToPolynomialBasisHypergridAdapter:
         projected_in_place_df = adapter.project_dataframe(original_df, in_place=True)
         assert id(original_df) == id(projected_in_place_df)
         assert projected_in_place_df.equals(projected_df)
-        assert all([target_dim_name in projected_in_place_df.columns.values for target_dim_name in
-                    adapter.get_column_names_for_polynomial_features()])
+        assert all(
+            target_dim_name in projected_in_place_df.columns.values
+            for target_dim_name in adapter.get_column_names_for_polynomial_features()
+        )
 
         # test values are as expected
         self._test_polynomial_feature_values_are_as_expected(adapter, projected_in_place_df)
@@ -140,7 +146,10 @@ class TestContinuousToPolynomialBasisHypergridAdapter:
             # *and* the rows at which imputation was performed are not tracked,
             # it is impossible to know if an unprojected point dimension was imputed during project,
             # the following only tests the dimensions known to exist in the original_point
-            assert all([unprojected_point[original_dim] == original_point[original_dim] for original_dim in original_point.to_dict().keys()])
+            assert all(
+                unprojected_point[original_dim] == original_point[original_dim]
+                for original_dim in original_point.to_dict().keys()
+            )
 
     @staticmethod
     def _test_polynomial_feature_values_are_as_expected(adapter, projected_df):

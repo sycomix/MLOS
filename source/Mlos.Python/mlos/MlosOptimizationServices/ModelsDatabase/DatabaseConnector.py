@@ -59,10 +59,8 @@ class DatabaseConnector:
         try:
             cursor = self.connection.cursor()
             cursor.execute("SELECT 1")
-            rows = [row for row in cursor]
-            if not rows:
-                return False
-            return True
+            rows = list(cursor)
+            return bool(rows)
         except:
             return False
 

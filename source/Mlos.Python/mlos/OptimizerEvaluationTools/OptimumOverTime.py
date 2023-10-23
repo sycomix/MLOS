@@ -43,8 +43,7 @@ class OptimumOverTime:
         optimum_dicts = [optimum.to_dict() for optimum in self._optimum_values]
         optimum_df = pd.DataFrame(optimum_dicts)
 
-        combined_df = pd.concat([iteration_df, config_df, optimum_df], axis=1)
-        return combined_df
+        return pd.concat([iteration_df, config_df, optimum_df], axis=1)
 
 
     def get_last_optimum(self):

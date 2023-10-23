@@ -188,16 +188,14 @@ class OptimizerMicroservice(OptimizerService_pb2_grpc.OptimizerServiceServicer):
             prediction = optimizer.predict(features_df)
         assert isinstance(prediction, Prediction)
 
-        response = OptimizerService_pb2.PredictResponse(
+        return OptimizerService_pb2.PredictResponse(
             ObjectivePredictions=[
                 OptimizerService_pb2.SingleObjectivePrediction(
                     ObjectiveName=prediction.objective_name,
-                    PredictionDataFrameJsonString=prediction.dataframe_to_json()
+                    PredictionDataFrameJsonString=prediction.dataframe_to_json(),
                 )
             ]
         )
-
-        return response
 
     def Echo(self, request: Empty, context): # pylint: disable=unused-argument
         return Empty()

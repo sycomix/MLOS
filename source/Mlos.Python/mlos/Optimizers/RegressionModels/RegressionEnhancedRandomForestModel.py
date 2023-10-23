@@ -425,8 +425,9 @@ class RegressionEnhancedRandomForestRegressionModel(RegressionModel):
 
         predictions = self.predict(x_df)
         predictions_df = predictions.get_dataframe()
-        r2 = r2_score(y, predictions_df[Prediction.LegalColumnNames.PREDICTED_VALUE.value])
-        return r2
+        return r2_score(
+            y, predictions_df[Prediction.LegalColumnNames.PREDICTED_VALUE.value]
+        )
 
     def _set_categorical_powers_table(self,
                                       num_continuous_dims=0,
@@ -499,11 +500,7 @@ class RegressionEnhancedRandomForestRegressionModel(RegressionModel):
         if what_to_return.upper() == 'fit_x'.upper():
             return fit_x
 
-        # restrict to features selected by previous lasso fit
-        #   serve as inputs to both regression and random forest on the residuals
-        x_filtered_to_discovered_features = self._filter_to_detected_features(fit_x)
-
-        return x_filtered_to_discovered_features
+        return self._filter_to_detected_features(fit_x)
 
     def _create_one_hot_encoded_design_matrix(self, x):
         assert len(self.one_hot_encoder_adapter.get_one_hot_encoded_column_names()) > 0
@@ -550,8 +547,7 @@ class RegressionEnhancedRandomForestRegressionModel(RegressionModel):
         return fit_x
 
     def _filter_to_detected_features(self, fit_x):
-        x_filtered_to_detected_features = fit_x[:, self.detected_feature_indices_]
-        return x_filtered_to_detected_features
+        return fit_x[:, self.detected_feature_indices_]
 
     def _set_polynomial_gradient_coef(self):
         gradient_coef_matrix = []
@@ -572,8 +568,8 @@ class RegressionEnhancedRandomForestRegressionModel(RegressionModel):
             for i, ip in enumerate(powers_wrt_xj):
                 if i in restricted_features:
                     p = ip  # powers_wrt_xj[i]
-                    c = fit_coef[j]
                     if p > 0:  # if p > 0, X_j contributes X_j**p to F polynomial
+                        c = fit_coef[j]
                         grad_coef_row.append(p * c)
                     j += 1
 
@@ -598,5 +594,4 @@ class RegressionEnhancedRandomForestRegressionModel(RegressionModel):
 
     def gradient_at_x(self, x):
         fit_x = self._create_one_hot_encoded_design_matrix(x)
-        gradient_at_x = np.matmul(fit_x, self.root_model_gradient_coef_)
-        return gradient_at_x
+        return np.matmul(fit_x, self.root_model_gradient_coef_)

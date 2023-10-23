@@ -67,7 +67,7 @@ class TestSmartCache:
         for i in range(10, 100):
             assert i - 10 in lru_cache
             lru_cache.push(CacheEntry(key=i, value=str(i)))
-            assert not i - 10 in lru_cache
+            assert i - 10 not in lru_cache
 
     def test_mru_cache_eviction_order(self):
         """ Tests whether a small mru cache does in fact evict in most recently used order. """

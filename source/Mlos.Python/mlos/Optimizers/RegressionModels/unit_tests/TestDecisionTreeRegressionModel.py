@@ -75,7 +75,7 @@ class TestDecisionTreeRegressionModel:
             if i % 10 == 0:
                 print(f"{datetime.datetime.utcnow()} {i}/{num_iterations}")
             model_config = decision_tree_config_store.parameter_space.random()
-            print(str(model_config))
+            print(model_config)
             model = DecisionTreeRegressionModel(
                 model_config=model_config,
                 input_space=self.input_space,

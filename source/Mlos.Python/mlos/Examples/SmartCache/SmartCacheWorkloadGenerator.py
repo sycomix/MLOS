@@ -135,8 +135,11 @@ class SmartCacheWorkloadGenerator:
 
         max_key_up_to = None
         if existing_result is None:
-            all_cached_smaller_keys = [element.key for element in smart_cache if element.key < sequence_number]
-            if all_cached_smaller_keys:
+            if all_cached_smaller_keys := [
+                element.key
+                for element in smart_cache
+                if element.key < sequence_number
+            ]:
                 max_key_up_to = max(all_cached_smaller_keys)
 
         start = 1

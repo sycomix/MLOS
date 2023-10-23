@@ -117,9 +117,6 @@ class CategoricalToDiscreteHypergridAdapter(HypergridAdapter):
 
         self._adaptee_to_target_dimension_mappings[adaptee_dimension.name] = forward_mapping
         self._target_to_adaptee_dimension_mappings[adaptee_dimension.name] = backward_mapping
-        target_dimension = DiscreteDimension(
-            name=adaptee_dimension.name,
-            min=0,
-            max=len(adaptee_dimension) - 1
+        return DiscreteDimension(
+            name=adaptee_dimension.name, min=0, max=len(adaptee_dimension) - 1
         )
-        return target_dimension

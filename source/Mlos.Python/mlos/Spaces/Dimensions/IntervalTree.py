@@ -89,8 +89,9 @@ class IntervalTree:
             if node.payload.intersects(chunk)
         ]
 
-        overlapping_chunks = [self.sorted_binary_tree.pop_node(node).payload for node in nodes_to_pop]
-        return overlapping_chunks
+        return [
+            self.sorted_binary_tree.pop_node(node).payload for node in nodes_to_pop
+        ]
 
     def pop_adjacent_chunks(self, chunk):
         """ Finds, removes and returns an iterable of chunks adjacent to chunk.

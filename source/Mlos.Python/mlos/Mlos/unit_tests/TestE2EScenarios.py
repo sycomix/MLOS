@@ -221,7 +221,9 @@ class TestE2EScenarios:
 
         smart_cache_workload_thread.join()
 
-        all_registered_mlos_objects = set((component_type, runtime_attributes) for component_type ,runtime_attributes in self.mlos_agent.enumerate_active_smart_components())
+        all_registered_mlos_objects = set(
+            self.mlos_agent.enumerate_active_smart_components()
+        )
         assert (
             (smart_cache_workload.mlos_object.owning_component_type, smart_cache_workload.mlos_object.owning_component_runtime_attributes)
             in all_registered_mlos_objects
@@ -230,7 +232,9 @@ class TestE2EScenarios:
         del smart_cache_workload
         self.mlos_agent.stop_all()
 
-        all_registered_mlos_objects = set(mlos_object for mlos_object in self.mlos_agent.enumerate_active_smart_components())
-        if len(all_registered_mlos_objects) != 0:
+        all_registered_mlos_objects = set(
+            self.mlos_agent.enumerate_active_smart_components()
+        )
+        if all_registered_mlos_objects:
             print("Put breakpoint here")
-        assert len(all_registered_mlos_objects) == 0
+        assert not all_registered_mlos_objects

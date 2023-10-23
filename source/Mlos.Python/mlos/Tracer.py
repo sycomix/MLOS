@@ -100,10 +100,7 @@ class Tracer:
     def __init__(self, actor_id=None, thread_id=None):
         pid = os.getpid()
 
-        if actor_id is None:
-            actor_id = pid
-        else:
-            actor_id = f"{actor_id}.{pid}"
+        actor_id = pid if actor_id is None else f"{actor_id}.{pid}"
         self.actor_id = actor_id
 
         if thread_id is None:
@@ -132,9 +129,10 @@ class Tracer:
         }
         reformatted_trace_events = []
         for event in events:
-            reformatted_event = {}
-            for key, value in event.items():
-                reformatted_event[key_mappings[key]] = value if key != "args" else json.loads(value)
+            reformatted_event = {
+                key_mappings[key]: value if key != "args" else json.loads(value)
+                for key, value in event.items()
+            }
             reformatted_trace_events.append(reformatted_event)
 
         return reformatted_trace_events
@@ -200,8 +198,8 @@ class Tracer:
                     args_json[key] = value
                 elif isinstance(value, pd.DataFrame):
                     args_json[key] = {
-                        "columns": [name for name in value.columns.values],
-                        "num_rows": len(value.index)
+                        "columns": list(value.columns.values),
+                        "num_rows": len(value.index),
                     }
                 else:
                     try:
@@ -213,5 +211,4 @@ class Tracer:
             args_json = {"error message": "Could not parse arguments"}
 
         args_str = json.dumps(args_json)
-        args_str = args_str.replace("'", "''")
-        return args_str
+        return args_str.replace("'", "''")

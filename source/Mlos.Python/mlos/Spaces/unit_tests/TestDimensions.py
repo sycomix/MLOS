@@ -254,7 +254,7 @@ class TestDiscreteDimension:
                         should_belong = should_belong and (value not in diffs[j])
                         should_belong = should_belong and (value in intersects[j])
 
-                    if not should_belong == (value in resulting_set):
+                    if should_belong != (value in resulting_set):
                         assert False
 
     def test_random(self):
@@ -273,14 +273,12 @@ class TestDimensions:
 
         long_fibonacci_sequence = OrdinalDimension(
             name='x',
-            ordered_values=[i for i in fibonacci(max=100*1000)],
-            ascending=True
+            ordered_values=list(fibonacci(max=100 * 1000)),
+            ascending=True,
         )
 
         short_fibonacci_sequence = OrdinalDimension(
-            name='x',
-            ordered_values=[i for i in fibonacci(max=100)],
-            ascending=True
+            name='x', ordered_values=list(fibonacci(max=100)), ascending=True
         )
 
         a_few_options = CategoricalDimension(
